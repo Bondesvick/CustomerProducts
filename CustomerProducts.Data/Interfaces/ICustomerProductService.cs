@@ -9,24 +9,27 @@ namespace CustomerProducts.Data.Interfaces
 {
     public interface ICustomerProductService
     {
-        Task Add(CustomerProduct customerProduct);
+        Task Add(MasterCustomerProduct customerProduct);
 
-        Task<List<CustomerProduct>> GetCustomerProducts();
+        Task<List<MasterCustomerProduct>> GetCustomerProducts();
 
-        Task<List<CustomerProduct>> GetCustomerProductsByDate();
+        Task<List<MasterCustomerProduct>> GetCustomerProductsByDate();
 
-        Task<List<CustomerProduct>> GetCustomerProductsByCountry();
+        Task<List<MasterCustomerProduct>> GetCustomerProductsByCountry();
 
-        Task<List<CustomerProduct>> GetCustomerProductsByRegion();
+        Task<List<MasterCustomerProduct>> GetCustomerProductsByRegion();
 
-        Task<List<CustomerProduct>> GetCustomerProductsByCity();
+        Task<List<MasterCustomerProduct>> GetCustomerProductsByCity();
 
-        Task<List<Product>> GetProducts();
+        Task<List<MasterProduct>> GetProducts();
 
-        Task<List<Country>> GetCountries();
+        //Task<List<MasterProduct>> GetProducts2();
 
-        Task<List<Region>> GetRegions();
+        //Task<List<MasterCountry>> GetCountries();
+        Task<List<MasterCountry>> GetCountries();
 
-        Task<List<City>> GetCities();
+        Task<List<MasterRegion>> GetRegions();
+
+        Task<List<MasterCity>> GetCities();
     }
 }

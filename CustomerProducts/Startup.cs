@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CustomerProducts.Data;
+using CustomerProducts.Data.Entities;
 using CustomerProducts.Data.Interfaces;
 using CustomerProducts.Data.Services;
 using CustomerProducts.Models;
@@ -30,7 +31,11 @@ namespace CustomerProducts
         {
             services.AddControllersWithViews();
 
-            services.AddDbContext<ProductContext>(
+            //services.AddDbContext<ProductContext>(
+            //    options => options.UseSqlServer(
+            //        Configuration.GetConnectionString("ProductContext")));
+
+            services.AddDbContext<masterContext>(
                 options => options.UseSqlServer(
                     Configuration.GetConnectionString("ProductContext")));
 

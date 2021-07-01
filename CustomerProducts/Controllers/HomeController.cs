@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using CustomerProducts.Data.Entities;
 using CustomerProducts.Data.Interfaces;
 
 namespace CustomerProducts.Controllers
@@ -31,9 +32,52 @@ namespace CustomerProducts.Controllers
             return View();
         }
 
-        public IActionResult Add()
+        [HttpGet]
+        public async Task<IActionResult> Add()
         {
-            return View();
+            var countries = await _customerProductService.GetCountries();
+            var regions = await _customerProductService.GetRegions();
+            var cities = await _customerProductService.GetCities();
+            var products = await _customerProductService.GetProducts();
+
+            ViewBag.Countries = countries;
+            ViewBag.Regions = regions;
+            ViewBag.Cities = cities;
+
+            ViewBag.Products = products;
+
+            ViewBag.Action = "Add Customer Product";
+
+            var customerProduct = new MasterCustomerProduct();
+
+            return View(customerProduct);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Add(MasterCustomerProduct masterCustomerProduct)
+        {
+            if (ModelState.IsValid)
+            {
+                //return View();
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                var countries = await _customerProductService.GetCountries();
+                var regions = await _customerProductService.GetRegions();
+                var cities = await _customerProductService.GetCities();
+                var products = await _customerProductService.GetProducts();
+
+                ViewBag.Countries = countries;
+                ViewBag.Regions = regions;
+                ViewBag.Cities = cities;
+
+                ViewBag.Products = products;
+
+                ViewBag.Action = "Add Customer Product";
+
+                return View(masterCustomerProduct);
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

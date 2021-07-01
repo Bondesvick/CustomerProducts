@@ -12,25 +12,27 @@ namespace CustomerProducts.Data.Services
 {
     public class CustomerProductService : ICustomerProductService
     {
-        private readonly ProductContext _productContext;
+        private readonly masterContext _masterContext;
         private readonly ILogger<CustomerProductService> _logger;
 
-        public CustomerProductService(ProductContext productContext, ILogger<CustomerProductService> logger)
+        public CustomerProductService(
+            masterContext masterContext,
+            ILogger<CustomerProductService> logger)
         {
-            _productContext = productContext;
+            _masterContext = masterContext;
             _logger = logger;
         }
 
-        public Task Add(CustomerProduct customerProduct)
+        public Task Add(MasterCustomerProduct customerProduct)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<CustomerProduct>> GetCustomerProducts()
+        public async Task<List<MasterCustomerProduct>> GetCustomerProducts()
         {
             try
             {
-                return _productContext.CustomerProducts.FromSqlRaw("").ToListAsync();
+                return await _masterContext.MasterCustomerProducts.FromSqlRaw("EXEC dbo.spGetCustomerProducts").ToListAsync();
             }
             catch (Exception e)
             {
@@ -39,11 +41,11 @@ namespace CustomerProducts.Data.Services
             }
         }
 
-        public Task<List<CustomerProduct>> GetCustomerProductsByDate()
+        public async Task<List<MasterCustomerProduct>> GetCustomerProductsByDate()
         {
             try
             {
-                return _productContext.CustomerProducts.FromSqlRaw("").ToListAsync();
+                return await _masterContext.MasterCustomerProducts.FromSqlRaw("").ToListAsync();
             }
             catch (Exception e)
             {
@@ -52,11 +54,11 @@ namespace CustomerProducts.Data.Services
             }
         }
 
-        public Task<List<CustomerProduct>> GetCustomerProductsByCountry()
+        public async Task<List<MasterCustomerProduct>> GetCustomerProductsByCountry()
         {
             try
             {
-                return _productContext.CustomerProducts.FromSqlRaw("").ToListAsync();
+                return await _masterContext.MasterCustomerProducts.FromSqlRaw("").ToListAsync();
             }
             catch (Exception e)
             {
@@ -65,11 +67,11 @@ namespace CustomerProducts.Data.Services
             }
         }
 
-        public Task<List<CustomerProduct>> GetCustomerProductsByRegion()
+        public async Task<List<MasterCustomerProduct>> GetCustomerProductsByRegion()
         {
             try
             {
-                return _productContext.CustomerProducts.FromSqlRaw("").ToListAsync();
+                return await _masterContext.MasterCustomerProducts.FromSqlRaw("").ToListAsync();
             }
             catch (Exception e)
             {
@@ -78,11 +80,11 @@ namespace CustomerProducts.Data.Services
             }
         }
 
-        public Task<List<CustomerProduct>> GetCustomerProductsByCity()
+        public async Task<List<MasterCustomerProduct>> GetCustomerProductsByCity()
         {
             try
             {
-                return _productContext.CustomerProducts.FromSqlRaw("").ToListAsync();
+                return await _masterContext.MasterCustomerProducts.FromSqlRaw("").ToListAsync();
             }
             catch (Exception e)
             {
@@ -91,16 +93,11 @@ namespace CustomerProducts.Data.Services
             }
         }
 
-        public Task<List<Product>> GetProducts()
-        {
-            return _productContext.Products.FromSqlRaw("EXEC dbo.spGetProducts").ToListAsync();
-        }
-
-        public Task<List<Country>> GetCountries()
+        public async Task<List<MasterProduct>> GetProducts()
         {
             try
             {
-                return _productContext.Countries.FromSqlRaw("EXEC dbo.spGetCountries").ToListAsync();
+                return await _masterContext.MasterProducts.FromSqlRaw("EXEC dbo.spGetProducts").ToListAsync();
             }
             catch (Exception e)
             {
@@ -109,11 +106,16 @@ namespace CustomerProducts.Data.Services
             }
         }
 
-        public Task<List<Region>> GetRegions()
+        public async Task<List<MasterCountry>> GetCountries()
         {
             try
             {
-                return _productContext.Regions.FromSqlRaw("EXEC dbo.spGetRegions").ToListAsync();
+                var result = _masterContext.MasterCountries.FromSqlInterpolated($"SELECT * FROM [master].[dbo].[Master_Country]");
+                var final = await result
+                    .Include(x => x.MasterRegions)
+                    .ThenInclude(x => x.MasterCities).ToListAsync();
+
+                return final;
             }
             catch (Exception e)
             {
@@ -122,11 +124,24 @@ namespace CustomerProducts.Data.Services
             }
         }
 
-        public Task<List<City>> GetCities()
+        public async Task<List<MasterRegion>> GetRegions()
         {
             try
             {
-                return _productContext.Cities.FromSqlRaw("EXEC dbo.spGetCities").ToListAsync();
+                return await _masterContext.MasterRegions.FromSqlRaw("EXEC dbo.spGetRegions").ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error: {e.Message}", e.ToString());
+                throw;
+            }
+        }
+
+        public Task<List<MasterCity>> GetCities()
+        {
+            try
+            {
+                return _masterContext.MasterCities.FromSqlRaw("EXEC dbo.spGetCities").ToListAsync();
             }
             catch (Exception e)
             {
