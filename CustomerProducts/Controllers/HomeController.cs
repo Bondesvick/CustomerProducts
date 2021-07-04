@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CustomerProducts.Data.Entities;
 using CustomerProducts.Data.Interfaces;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CustomerProducts.Controllers
 {
@@ -32,17 +33,29 @@ namespace CustomerProducts.Controllers
             return View();
         }
 
+        public async Task<IActionResult> LoadRegions(string countryCode)
+        {
+            var regions = await _customerProductService.GetRegions();
+            regions = regions.Where(x => x.CountryCode == countryCode).ToList();
+
+            return Json(new SelectList(regions, "RegionCode", "RegionName"));
+        }
+
+        public async Task<IActionResult> LoadCities(string regionCode)
+        {
+            var cities = await _customerProductService.GetCities();
+            cities = cities.Where(x => x.RegionCode == regionCode).ToList();
+
+            return Json(new SelectList(cities, "CityCode", "CityName"));
+        }
+
         [HttpGet]
         public async Task<IActionResult> Add()
         {
             var countries = await _customerProductService.GetCountries();
-            var regions = await _customerProductService.GetRegions();
-            var cities = await _customerProductService.GetCities();
             var products = await _customerProductService.GetProducts();
 
             ViewBag.Countries = countries;
-            ViewBag.Regions = regions;
-            ViewBag.Cities = cities;
 
             ViewBag.Products = products;
 
@@ -59,25 +72,20 @@ namespace CustomerProducts.Controllers
             if (ModelState.IsValid)
             {
                 //return View();
+                _customerProductService.Add(masterCustomerProduct);
+
                 return RedirectToAction("Index", "Home");
             }
-            else
-            {
-                var countries = await _customerProductService.GetCountries();
-                var regions = await _customerProductService.GetRegions();
-                var cities = await _customerProductService.GetCities();
-                var products = await _customerProductService.GetProducts();
 
-                ViewBag.Countries = countries;
-                ViewBag.Regions = regions;
-                ViewBag.Cities = cities;
+            var countries = await _customerProductService.GetCountries();
+            var products = await _customerProductService.GetProducts();
 
-                ViewBag.Products = products;
+            ViewBag.Countries = countries;
+            ViewBag.Products = products;
 
-                ViewBag.Action = "Add Customer Product";
+            ViewBag.Action = "Add Customer Product";
 
-                return View(masterCustomerProduct);
-            }
+            return View(masterCustomerProduct);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

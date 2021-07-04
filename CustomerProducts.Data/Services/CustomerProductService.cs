@@ -12,27 +12,45 @@ namespace CustomerProducts.Data.Services
 {
     public class CustomerProductService : ICustomerProductService
     {
-        private readonly masterContext _masterContext;
+        private readonly MasterContext _masterContext;
         private readonly ILogger<CustomerProductService> _logger;
 
         public CustomerProductService(
-            masterContext masterContext,
+            MasterContext masterContext,
             ILogger<CustomerProductService> logger)
         {
             _masterContext = masterContext;
             _logger = logger;
         }
 
-        public Task Add(MasterCustomerProduct customerProduct)
+        public void Add(MasterCustomerProduct customerProduct)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var script = $"EXEC [dbo].[spInsertCustomerProduct] N'{customerProduct.CustomerName}',N'{customerProduct.CountryCode}',N'{customerProduct.RegionCode}',N'{customerProduct.CityCode}',N'{customerProduct.ProductId}',N'{customerProduct.Quantity}',N'{customerProduct.DateOfSale}'";
+
+                _masterContext.MasterCustomerProducts.FromSqlRaw(script);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error: {e.Message}", e.ToString());
+                throw;
+            }
         }
 
         public async Task<List<MasterCustomerProduct>> GetCustomerProducts()
         {
             try
             {
-                return await _masterContext.MasterCustomerProducts.FromSqlRaw("EXEC dbo.spGetCustomerProducts").ToListAsync();
+                var result = _masterContext.MasterCustomerProducts.FromSqlInterpolated($"EXEC [dbo].[spGetCustomerProducts]");
+
+                var final = await result
+                    .Include(x => x.Product)
+                    .Include(x => x.CountryCodeNavigation)
+                    .Include(x => x.RegionCodeNavigation)
+                    .Include(x => x.CityCodeNavigation).ToListAsync();
+
+                return final;
             }
             catch (Exception e)
             {
@@ -110,12 +128,12 @@ namespace CustomerProducts.Data.Services
         {
             try
             {
-                var result = _masterContext.MasterCountries.FromSqlInterpolated($"SELECT * FROM [master].[dbo].[Master_Country]");
-                var final = await result
-                    .Include(x => x.MasterRegions)
-                    .ThenInclude(x => x.MasterCities).ToListAsync();
+                return await _masterContext.MasterCountries.FromSqlRaw($"EXEC dbo.spGetCountries").ToListAsync();
+                //var final = await result
+                //    .Include(x => x.MasterRegions)
+                //    .ThenInclude(x => x.MasterCities).ToListAsync();
 
-                return final;
+                //return final;
             }
             catch (Exception e)
             {

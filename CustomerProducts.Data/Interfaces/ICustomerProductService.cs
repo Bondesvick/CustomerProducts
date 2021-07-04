@@ -9,7 +9,7 @@ namespace CustomerProducts.Data.Interfaces
 {
     public interface ICustomerProductService
     {
-        Task Add(MasterCustomerProduct customerProduct);
+        void Add(MasterCustomerProduct customerProduct);
 
         Task<List<MasterCustomerProduct>> GetCustomerProducts();
 

@@ -14,30 +14,36 @@
             <input asp-for="CustomerName" class="form-control" />
         </div>
 
+        <label asp-for="CountryCode">Country</label>
+        <select asp-for="CountryCode"
+                id="CountryList"
+                asp-items="@(new SelectList(ViewBag.Countries, "CountryCode", "CountryName", Model.CountryCode))"
+                class="form-control">
+            <option>Select Country</option>
+        </select>
+
+        <label asp-for="RegionCode">Region</label>
+        <select asp-for="RegionCode" id="RegionList" class="form-control">
+        </select>
+
+        <label asp-for="CityCode">City</label>
+        <select asp-for="CityCode" id="CityList" class="form-control">
+        </select>
+
+        <label asp-for="DateOfSale">Date Of Sale</label>
+        <div class="form-group">
+            <label asp-for="DateOfSale">Name</label>
+            <input asp-for="DateOfSale" class="form-control" />
+        </div>
+
         <label asp-for="ProductId">Product</label>
         <select asp-for="ProductId"
                 asp-items="@(new SelectList(ViewBag.Products, "ProductId", "ProductName", Model.ProductId.ToString()))"
                 class="form-control">
+            <option>Select Product</option>
         </select>
 
-        <label asp-for="CountryCode">Country</label>
-        <select asp-for="CountryCode"
-                asp-items="@(new SelectList(ViewBag.Countries, "CountryCode", "CountryName", Model.CountryCode))"
-                class="form-control">
-        </select>
-
-        <label asp-for="RegionCode">Region</label>
-        <select asp-for="RegionCode"
-                asp-items="@(new SelectList(ViewBag.Regions, "RegionCode", "RegionName", Model.RegionCode))"
-                class="form-control">
-        </select>
-
-        <label asp-for="CityCode">City</label>
-        <select asp-for="CityCode"
-                asp-items="@(new SelectList(ViewBag.Cities, "CityCode", "CityName", Model.CityCode))"
-                class="form-control">
-        </select>
-
+        <label asp-for="Quantity">Quantity</label>
         <div class="form-group">
             <label asp-for="Quantity">Name</label>
             <input asp-for="Quantity" class="form-control" />
@@ -49,3 +55,57 @@
         @*<a asp-controller="Add" asp-action="List" class="btn btn-primary">Cancel</a>*@
     </div>
 </form>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#CountryList').change(function() {
+                $('#RegionList').empty();
+                $('#CityList').empty();
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("LoadRegions")',
+                    dataType: 'json',
+                    data: { countryCode: $('#CountryList').val() },
+                    success: function (regions) {
+                        console.log(regions);
+                        $('#RegionList').append(
+                            '<option value="">' + "Select Region" + '</option>'
+                        );
+
+                        $.each(regions,
+                            function (i, region) {
+                                console.log(region);
+                                $('#RegionList').append(
+                                    '<option value="' + region.value + '">' + region.text + '</option>'
+                                );
+                            });
+                    }
+                });
+            });
+
+            $('#RegionList').change(function() {
+                $('#CityList').empty();
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("LoadCities")',
+                    dataType: 'json',
+                    data: { regionCode: $('#RegionList').val() },
+                    success: function (cities) {
+                        console.log(cities);
+                        $('#CityList').append(
+                            '<option value="">' + "Select City" + '</option>'
+                        );
+
+                        $.each(cities,
+                            function(i, city) {
+                                $('#CityList').append(
+                                    '<option value="' + city.value + '">' + city.text + '</option>'
+                                );
+                            });
+                    }
+                });
+            });
+        })
+    </script>
+}

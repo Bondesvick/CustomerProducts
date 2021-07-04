@@ -35,7 +35,7 @@ namespace CustomerProducts
             //    options => options.UseSqlServer(
             //        Configuration.GetConnectionString("ProductContext")));
 
-            services.AddDbContext<masterContext>(
+            services.AddDbContext<MasterContext>(
                 options => options.UseSqlServer(
                     Configuration.GetConnectionString("ProductContext")));
 

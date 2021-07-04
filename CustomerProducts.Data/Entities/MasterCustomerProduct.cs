@@ -28,6 +28,9 @@ namespace CustomerProducts.Data.Entities
         [Required(ErrorMessage = "Please enter product quantity")]
         public int Quantity { get; set; }
 
+        [Required(ErrorMessage = "Please enter date of sale")]
+        public DateTime DateOfSale { get; set; }
+
         public virtual MasterCity CityCodeNavigation { get; set; }
         public virtual MasterCountry CountryCodeNavigation { get; set; }
         public virtual MasterProduct Product { get; set; }
